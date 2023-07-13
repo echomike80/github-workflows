@@ -41,13 +41,16 @@ jobs:
     needs: [setup]
     runs-on: ${{ fromJSON(needs.setup.outputs.runner) }}
     environment: ${{ github.event.inputs.environment || 'test' }}
+    container: 
+      image: docker://renovate/renovate:36
     steps:
-    - name: Run Renovate
-      uses: docker://renovate/renovate:36
-      env:
-        RENOVATE_AUTODISCOVER: ${{ env.RENOVATE_AUTODISCOVER }}
-        # RENOVATE_ENDPOINT: https://github.example.com/api/v3/
-        RENOVATE_PLATFORM: ${{ env.RENOVATE_PLATFORM }}
-        RENOVATE_REPOSITORIES: ${{ env.RENOVATE_REPOSITORIES }}
-        RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+      - name: Run Renovate
+        run: |
+          renovate
+        env:
+          RENOVATE_AUTODISCOVER: ${{ env.RENOVATE_AUTODISCOVER }}
+          # RENOVATE_ENDPOINT: https://github.example.com/api/v3/
+          RENOVATE_PLATFORM: ${{ env.RENOVATE_PLATFORM }}
+          RENOVATE_REPOSITORIES: ${{ env.RENOVATE_REPOSITORIES }}
+          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
 
