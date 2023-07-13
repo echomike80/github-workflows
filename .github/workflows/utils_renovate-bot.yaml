@@ -46,8 +46,10 @@ jobs:
     steps:
       - name: Run Renovate
         run: |
-          renovate --autodiscover
+          env
+          renovate
         env:
+          RENOVATE_AUTODISCOVER_FILTER: ${{ env.RENOVATE_AUTODISCOVER_FILTER }}
           # RENOVATE_ENDPOINT: https://github.example.com/api/v3/
           RENOVATE_PLATFORM: ${{ env.RENOVATE_PLATFORM }}
           RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}

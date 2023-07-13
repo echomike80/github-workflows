@@ -43,7 +43,7 @@ jobs:
     environment: ${{ github.event.inputs.environment || 'test' }}
     steps:
     - name: Run Renovate
-      uses: docker://renovate/renovate:36
+      uses: docker://docker.io/renovate/renovate:36
       env:
         RENOVATE_AUTODISCOVER_FILTER: ${{ env.RENOVATE_AUTODISCOVER_FILTER }}
         # RENOVATE_ENDPOINT: https://github.example.com/api/v3/
