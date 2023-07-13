@@ -1,0 +1,52 @@
+name: Utils Renovate Bot
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to run against
+        type: environment
+        required: true
+        default: test
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest # [self-hosted, linux]
+    outputs:
+      runner: ${{ steps.set_target_instance.outputs.runner }}
+    steps:
+    - name: Show run details
+      id: show_run_details
+      run: |
+        echo "WORKFLOW: ${{ github.workflow }}"
+        # echo "BRANCH: $(echo ${GITHUB_REF#refs/heads/})" -> Fallback in case of next variable beeing empty or does not provide the necessary information, e.g. for pull-requests
+        echo "BRANCH_NAME: ${{ github.ref_name }}"
+        echo "SHA: ${{ github.sha }}"
+        echo "ENV: ${{ github.event.inputs.environment || 'test' }}"
+        echo "USER: ${{ github.actor }}"
+        echo "TRIGGERING_USER: ${{ github.triggering_actor }}"
+
+    - name: Set target instance
+      id: set_target_instance
+      run: |
+        # for runner versions < 2.297.0
+        # echo "::set-output name=runner::['self-hosted', 'linux', 'ec2', '${{ github.event.inputs.environment || 'test' }}']"
+        echo "::set-output name=runner::['ubuntu-latest']"
+        # for runner versions >= 2.297.0
+        # see https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/ for details
+        #echo "runner=['self-hosted', 'linux', 'ec2', '${{ github.event.inputs.environment || 'test' }}']" >>$GITHUB_OUTPUT
+
+  renovate:
+    name: Run Renovate on mms-bauhybr
+    needs: [setup]
+    runs-on: ${{ fromJSON(needs.setup.outputs.runner) }}
+    environment: ${{ github.event.inputs.environment || 'test' }}
+    steps:
+    - name: Run Renovate
+      uses: docker://renovate/renovate:36
+      env:
+        # RENOVATE_ENDPOINT: https://github.example.com/api/v3/
+        RENOVATE_PLATFORM: ${{ env.RENOVATE_PLATFORM }}
+        RENOVATE_REPOSITORIES: ${{ env.RENOVATE_REPOSITORIES }}
+        RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+
