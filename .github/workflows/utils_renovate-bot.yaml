@@ -42,7 +42,7 @@ jobs:
     runs-on: ${{ fromJSON(needs.setup.outputs.runner) }}
     environment: ${{ github.event.inputs.environment || 'test' }}
     container: 
-      image: docker://renovate/renovate:36
+      image: docker.io/renovate/renovate:36
     steps:
       - name: Run Renovate
         run: |
