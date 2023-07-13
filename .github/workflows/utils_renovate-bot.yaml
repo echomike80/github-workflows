@@ -46,7 +46,6 @@ jobs:
     steps:
       - name: Run Renovate
         run: |
-          env
           renovate
         env:
           RENOVATE_AUTODISCOVER: ${{ vars.RENOVATE_AUTODISCOVER }}
