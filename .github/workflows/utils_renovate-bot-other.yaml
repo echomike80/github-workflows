@@ -1,13 +1,33 @@
-name: "Utils Renovate Bot - Other"
+name: Utils Renovate Bot - Other
 
 on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to run deployment against'
+        description: Environment to run deployment against
         type: environment
         required: true
         default: test
+      dryrun:
+        description: 'Perform a dry run as described in docs: https://docs.renovatebot.com/self-hosted-configuration/#dryrun'
+        required: false
+        type: choice
+        options:
+          - extract
+          - lookup
+          - full
+      logLevel:
+        description: Log level
+        required: true
+        default: info
+        type: choice
+        options:
+          # - trace
+          - debug
+          - info
+          # - warn
+          # - error
+          # - fatal
 
 jobs:
   setup:
@@ -45,8 +65,10 @@ jobs:
     - name: Run Renovate
       uses: docker://docker.io/renovate/renovate:36
       env:
+        LOG_LEVEL: ${{ github.event.inputs.logLevel }}
         RENOVATE_AUTODISCOVER: ${{ vars.RENOVATE_AUTODISCOVER }}
         RENOVATE_AUTODISCOVER_FILTER: ${{ vars.RENOVATE_AUTODISCOVER_FILTER }}
+        RENOVATE_DRY_RUN: ${{ github.event.inputs.dryrun }}
         # RENOVATE_ENDPOINT: https://github.example.com/api/v3/
         RENOVATE_PLATFORM: ${{ vars.RENOVATE_PLATFORM }}
         RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
