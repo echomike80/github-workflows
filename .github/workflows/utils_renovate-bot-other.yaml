@@ -11,7 +11,7 @@ on:
       dryrun:
         description: 'Perform a dry run as described in docs: https://docs.renovatebot.com/self-hosted-configuration/#dryrun'
         type: choice
-        required: true
+        required: false
         default: ''
         options:
           - ''
