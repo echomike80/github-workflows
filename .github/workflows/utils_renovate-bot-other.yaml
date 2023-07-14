@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: Environment to run deployment against
+        description: Environment to run against
         type: environment
         required: true
         default: test
@@ -14,7 +14,7 @@ on:
         required: false
         default: ''
         options:
-          - ''
+          - '' # Performs a regular Renovate run including creating/updating/deleting branches and PRs
           - extract
           - lookup
           - full
@@ -52,11 +52,10 @@ jobs:
       id: set_target_instance
       run: |
         # for runner versions < 2.297.0
-        # echo "::set-output name=runner::['self-hosted', 'linux', 'ec2', '${{ github.event.inputs.environment || 'test' }}']"
-        echo "::set-output name=runner::['ubuntu-latest']"
+        # echo "::set-output name=runner::['ubuntu-latest']"
         # for runner versions >= 2.297.0
         # see https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/ for details
-        #echo "runner=['self-hosted', 'linux', 'ec2', '${{ github.event.inputs.environment || 'test' }}']" >>$GITHUB_OUTPUT
+        echo "runner=['ubuntu-latest']" >>$GITHUB_OUTPUT
 
   renovate:
     name: Run Renovate
