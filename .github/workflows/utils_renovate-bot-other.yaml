@@ -10,8 +10,9 @@ on:
         default: test
       dryrun:
         description: 'Perform a dry run as described in docs: https://docs.renovatebot.com/self-hosted-configuration/#dryrun'
-        required: false
         type: choice
+        required: true
+        default: 
         options:
           - extract
           - lookup
