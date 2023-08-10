@@ -1,8 +1,13 @@
-name: Utils Renovate Bot
+name: Utils Renovate Bot - Other
 
 on:
   workflow_dispatch:
     inputs:
+      # inputs / environment variables following certain naming conventions are being masked automatically. see https://github.com/actions/runner/issues/475#issuecomment-742271143
+      personal_access_token:
+        description: Your personal access token (is masked in the GitHub Actions logs)
+        type: string
+        required: true
       environment:
         description: Environment to run against
         type: environment
@@ -12,12 +17,12 @@ on:
         description: 'Perform a dry run as described in docs: https://docs.renovatebot.com/self-hosted-configuration/#dryrun'
         type: choice
         required: false
-        default: ''
+        default: 'null'
         options:
-          - '' # Performs a regular Renovate run including creating/updating/deleting branches and PRs
-          - extract
-          - lookup
-          - full
+          - 'null' # Performs a regular Renovate run including creating/updating/deleting branches and PRs
+          - 'extract'
+          - 'lookup'
+          - 'full'
       logLevel:
         description: Log level
         required: true
@@ -30,10 +35,22 @@ on:
           # - warn
           # - error
           # - fatal
+      renovate_base_branches:
+        description: Branch to renovate
+        type: choice
+        required: false
+        default: master
+        options:
+          - master
+          - branch that the workflow is used from
+
+env:
+  renovate_base_branch: ${{ github.event.inputs.renovate_base_branches == 'master' && 'master' || github.ref_name }}
+  platform_endpoint_api_url: ${{ github.server_url }}/api/v3/
 
 jobs:
   setup:
-    runs-on: ubuntu-latest # [self-hosted, linux]
+    runs-on: ubuntu-latest
     outputs:
       runner: ${{ steps.set_target_instance.outputs.runner }}
     steps:
@@ -58,22 +75,37 @@ jobs:
         echo "runner=['ubuntu-latest']" >>$GITHUB_OUTPUT
 
   renovate:
-    name: Run Renovate on mms-bauhybr
+    name: Run Renovate
     needs: [setup]
     runs-on: ${{ fromJSON(needs.setup.outputs.runner) }}
     environment: ${{ github.event.inputs.environment || 'test' }}
-    container: 
-      image: docker.io/renovate/renovate:36
     steps:
-      - name: Run Renovate
-        run: |
-          renovate
-        env:
-          LOG_LEVEL: ${{ github.event.inputs.logLevel }}
-          RENOVATE_AUTODISCOVER: ${{ vars.RENOVATE_AUTODISCOVER }}
-          RENOVATE_AUTODISCOVER_FILTER: ${{ vars.RENOVATE_AUTODISCOVER_FILTER }}
-          RENOVATE_DRY_RUN: ${{ github.event.inputs.dryrun }}
-          # RENOVATE_ENDPOINT: https://github.example.com/api/v3/
-          RENOVATE_PLATFORM: ${{ vars.RENOVATE_PLATFORM }}
-          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+    - name: Run Renovate
+      uses: docker://docker.io/renovate/renovate:36
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.RENOVATE_AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.RENOVATE_AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.RENOVATE_AWS_REGION }}
+        GITHUB_COM_TOKEN: ${{ secrets.AUTH_GITHUB_COM_TOKEN_RENOVATE }}
+        LOG_LEVEL: ${{ github.event.inputs.logLevel }}
+        RENOVATE_AUTODISCOVER: true
+        RENOVATE_AUTODISCOVER_FILTER: ${{ var.RENOVATE_AUTODISCOVER_FILTER }}
+        RENOVATE_DRY_RUN: ${{ github.event.inputs.dryrun }}
+        # RENOVATE_ENDPOINT: ${{ env.platform_endpoint_api_url }}
+        RENOVATE_PLATFORM: ${{ vars.RENOVATE_PLATFORM }}
+        RENOVATE_TOKEN: ${{ github.event.inputs.personal_access_token }}
 
+  ## alternative way of starting docker container
+  # renovate_alternative:
+  #   name: Run Renovate
+  #   needs: [setup]
+  #   runs-on: ${{ fromJSON(needs.setup.outputs.runner) }}
+  #   environment: ${{ github.event.inputs.environment || 'test' }}
+  #   container: 
+  #     image: docker.io/renovate/renovate:36
+  #   steps:
+  #   - name: Run Renovate
+  #     run: |
+  #       renovate
+  #     env:
+  #       KEY: value
