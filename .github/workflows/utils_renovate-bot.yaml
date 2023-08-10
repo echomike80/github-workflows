@@ -89,7 +89,7 @@ jobs:
         GITHUB_COM_TOKEN: ${{ secrets.AUTH_GITHUB_COM_TOKEN_RENOVATE }}
         LOG_LEVEL: ${{ github.event.inputs.logLevel }}
         RENOVATE_AUTODISCOVER: true
-        RENOVATE_AUTODISCOVER_FILTER: ${{ var.RENOVATE_AUTODISCOVER_FILTER }}
+        RENOVATE_AUTODISCOVER_FILTER: ${{ vars.RENOVATE_AUTODISCOVER_FILTER }}
         RENOVATE_DRY_RUN: ${{ github.event.inputs.dryrun }}
         # RENOVATE_ENDPOINT: ${{ env.platform_endpoint_api_url }}
         RENOVATE_PLATFORM: ${{ vars.RENOVATE_PLATFORM }}
