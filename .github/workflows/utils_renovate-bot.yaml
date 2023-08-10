@@ -1,4 +1,4 @@
-name: Utils Renovate Bot - Other
+name: Utils Renovate Bot
 
 on:
   workflow_dispatch:
